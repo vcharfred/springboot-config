@@ -238,15 +238,20 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         if(null!=acmProperties.getNamespace()){
             map.put("alibaba.acm.namespace", acmProperties.getNamespace());
         }
-
-
-
-        map.put("alibaba.acm.access-key", acmProperties.getAccessKey());
-        map.put("alibaba.acm.secret-key", acmProperties.getSecretKey());
+        if(null!=acmProperties.getAccessKey()){
+            map.put("alibaba.acm.access-key", acmProperties.getAccessKey());
+        }
+        if(null!=acmProperties.getSecretKey()){
+            map.put("alibaba.acm.secret-key", acmProperties.getSecretKey());
+        }
         map.put("alibaba.acm.time-out", acmProperties.getTimeOut());
-        map.put("alibaba.acm.ram-role-name", acmProperties.getRamRoleName());
+        if(null!=acmProperties.getRamRoleName()){
+            map.put("alibaba.acm.ram-role-name", acmProperties.getRamRoleName());
+        }
         map.put("alibaba.acm.open-kms-filter", acmProperties.getOpenKMSFilter());
-        map.put("alibaba.acm.region-id", acmProperties.getRegionId());
+        if(null!=acmProperties.getRegionId()){
+            map.put("alibaba.acm.region-id", acmProperties.getRegionId());
+        }
         return map;
     }
 

@@ -39,7 +39,6 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         return this.order;
     }
 
-
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         MutablePropertySources propertySources = environment.getPropertySources();
@@ -79,38 +78,30 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         toMap(acmProperties, newSource);
         newSource.put(ACM_PROPERTY_SOURCE_LOADED, "Y");
 
-        try{
-            //Refresh config
-            List<EnumerableCompositePropertySource> sourceList = (List<EnumerableCompositePropertySource>) applicationConfigurationProperties.getSource();
-            EnumerableCompositePropertySource enumerablePropertySource = sourceList.get(0);
-            Collection<PropertySource<?>> source2 = enumerablePropertySource.getSource();
-
-
-            Iterator<PropertySource<?>> iterator = source2.iterator();
-            while (iterator.hasNext()){
-                PropertySource<?> source = iterator.next();
-                Map<String, Object> properties = new HashMap<>();
-                if(source instanceof PropertiesPropertySource){
+        //Refresh config
+        List<EnumerableCompositePropertySource> sourceList = (List<EnumerableCompositePropertySource>) applicationConfigurationProperties.getSource();
+        EnumerableCompositePropertySource enumerablePropertySource = sourceList.get(0);
+        Collection<PropertySource<?>> source2 = enumerablePropertySource.getSource();
+        for (PropertySource<?> source : source2) {
+            try {
+                if (source instanceof PropertiesPropertySource) {
                     PropertiesPropertySource propertySource = (PropertiesPropertySource) source;
-                    properties = propertySource.getSource();
-                }else {
-                    if(source instanceof MapPropertySource){
+                    Map<String, Object> properties = propertySource.getSource();
+                    if(properties!=null){
+                        newSource.forEach(properties::put);
+                    }
+                } else {
+                    if (source instanceof MapPropertySource) {
                         MapPropertySource mapPropertySource = (MapPropertySource) source;
-                        properties = mapPropertySource.getSource();
+                        Map<String, Object> mapSource = mapPropertySource.getSource();
+                        if (null != mapSource && !mapSource.isEmpty()) {
+                            mapSource.putAll(newSource);
+                        }
                     }
                 }
-                if(null!=properties){
-                    if(!properties.isEmpty()){
-                        String name = source.getName();
-                        System.out.println("加载结果： "+name);
-                        properties.putAll(newSource);
-                        System.out.println("2加载结果： "+name);
-                    }
-                }
-
+            }catch (Exception e){
+                e.printStackTrace();
             }
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -290,17 +281,35 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
     }
 
     private void toMap(AcmProperties acmProperties, Map<String, Object> map){
-        map.put("alibaba.acm.application-data-id", acmProperties.getApplicationDataId());
-        map.put("alibaba.acm.data-id-list", acmProperties.getDataIdList());
-        map.put("alibaba.acm.group", acmProperties.getGroup());
-        map.put("alibaba.acm.endpoint", acmProperties.getEndpoint());
-        map.put("alibaba.acm.namespace", acmProperties.getNamespace());
-        map.put("alibaba.acm.access-key", acmProperties.getAccessKey());
-        map.put("alibaba.acm.secret-key", acmProperties.getSecretKey());
+        if(null!=acmProperties.getApplicationDataId()){
+            map.put("alibaba.acm.application-data-id", acmProperties.getApplicationDataId());
+        }
+        if(null!=acmProperties.getDataIdList()){
+            map.put("alibaba.acm.data-id-list", acmProperties.getDataIdList());
+        }
+        if(null!=acmProperties.getGroup()){
+            map.put("alibaba.acm.group", acmProperties.getGroup());
+        }
+        if(null!=acmProperties.getEndpoint()){
+            map.put("alibaba.acm.endpoint", acmProperties.getEndpoint());
+        }
+        if(null!=acmProperties.getNamespace()){
+            map.put("alibaba.acm.namespace", acmProperties.getNamespace());
+        }
+        if(null!=acmProperties.getAccessKey()){
+            map.put("alibaba.acm.access-key", acmProperties.getAccessKey());
+        }
+        if(null!=acmProperties.getSecretKey()){
+            map.put("alibaba.acm.secret-key", acmProperties.getSecretKey());
+        }
         map.put("alibaba.acm.time-out", acmProperties.getTimeOut());
-        map.put("alibaba.acm.ram-role-name", acmProperties.getRamRoleName());
+        if(null!=acmProperties.getRamRoleName()){
+            map.put("alibaba.acm.ram-role-name", acmProperties.getRamRoleName());
+        }
         map.put("alibaba.acm.open-kms-filter", acmProperties.getOpenKMSFilter());
-        map.put("alibaba.acm.region-id", acmProperties.getRegionId());
+        if(null!=acmProperties.getRegionId()){
+            map.put("alibaba.acm.region-id", acmProperties.getRegionId());
+        }
 
     }
 
