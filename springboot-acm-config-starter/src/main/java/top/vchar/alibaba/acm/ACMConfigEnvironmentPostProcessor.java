@@ -72,7 +72,7 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
             }
         }
 
-        //load acm config from vm
+        //load acm config from vm, this is not necessary, acm sdk jar will read properties from vm first
         loadAcmConfigFromSystem(acmProperties);
 
         Map<String, Object> newSource = toMap(acmProperties);
@@ -174,6 +174,11 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
             acmProperties.setNamespace(namespace);
         }
 
+        String ramRoleName = System.getProperty("ram.role.name");
+        if(ramRoleName!=null){
+            acmProperties.setRamRoleName(ramRoleName);
+        }
+
         String accessKey = CredentialService.getInstance().getCredential().getAccessKey();
         if (!StringUtils.isEmpty(accessKey)) {
             acmProperties.setAccessKey(accessKey);
@@ -218,11 +223,24 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
 
     private Map<String, Object> toMap(AcmProperties acmProperties){
         Map<String, Object> map = new HashMap<>();
-        map.put("alibaba.acm.application-data-id", acmProperties.getApplicationDataId());
-        map.put("alibaba.acm.data-id-list", acmProperties.getDataIdList());
-        map.put("alibaba.acm.group", acmProperties.getGroup());
-        map.put("alibaba.acm.endpoint", acmProperties.getEndpoint());
-        map.put("alibaba.acm.namespace", acmProperties.getNamespace());
+        if(null!=acmProperties.getApplicationDataId()){
+            map.put("alibaba.acm.application-data-id", acmProperties.getApplicationDataId());
+        }
+        if(null!=acmProperties.getDataIdList()){
+            map.put("alibaba.acm.data-id-list", acmProperties.getDataIdList());
+        }
+        if(null!=acmProperties.getGroup()){
+            map.put("alibaba.acm.group", acmProperties.getGroup());
+        }
+        if(null!=acmProperties.getEndpoint()){
+            map.put("alibaba.acm.endpoint", acmProperties.getEndpoint());
+        }
+        if(null!=acmProperties.getNamespace()){
+            map.put("alibaba.acm.namespace", acmProperties.getNamespace());
+        }
+
+
+
         map.put("alibaba.acm.access-key", acmProperties.getAccessKey());
         map.put("alibaba.acm.secret-key", acmProperties.getSecretKey());
         map.put("alibaba.acm.time-out", acmProperties.getTimeOut());

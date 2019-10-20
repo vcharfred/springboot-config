@@ -8,8 +8,10 @@
     <artifactId>springboot-config</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
+        <module>springboot-acm-config-starter-1.0</module>
         <module>springboot-acm-config-starter</module>
         <module>springboot-acm-config-test</module>
+        <module>springboot-acm-config-test-1.0</module>
     </modules>
     <packaging>pom</packaging>
 
