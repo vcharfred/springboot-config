@@ -59,17 +59,6 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         //load acm config from vm, this is not necessary, acm sdk jar will read properties from vm first
         loadAcmConfigFroVm(acmProperties);
 
-        if(null==acmProperties.getEndpoint() || null==acmProperties.getNamespace()){
-            logger.warn("no alibaba acm config endpoint and namespace");
-            return;
-        }
-
-        if(null==acmProperties.getRamRoleName()
-                && null==acmProperties.getAccessKey() && null==acmProperties.getSecretKey()){
-            logger.error("no alibaba acm role info, you should config 'ram-role-name' or 'access-key'、 'secret-key'");
-            throw new RuntimeException("no alibaba acm role info, you should config 'ram-role-name' or 'access-key'、 'secret-key'");
-        }
-
         //init acm config
         acmInit(acmProperties);
 

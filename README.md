@@ -36,6 +36,25 @@ springboot-acm-config-starter 是一个借鉴阿里云官方提供的sdk包进�
         
 之后启动springboot项目即可
 
+
+也可以通过Java启动参数来设置
+
+    -Daddress.server.domain   设置 endpoint
+    -Dtenant.id               设置 namespace
+    -Dram.role.name           设置 授权用户名
+    -Dalibaba.acm.access-key  设置 access-key
+    -Dalibaba.acm.secret-key  设置 secret-key
+
+> role.name优先级高于access-key和secret-key
+    
+<span style="color:red">注意jvm 环境设置优先级高于配置文件中的配置</span>
+
+#### 注意在本地使用HSF服务时注意在启动时添加如下jvm启动参数
+
+    -Daddress.server.domain=endpoint
+    如：
+    -Daddress.server.domain=acm.aliyun.com
+
 ### 实现原理
 实现``org.springframework.boot.env.EnvironmentPostProcessor``接口，在```postProcessEnvironment```中做配置更新，
 同时设置排序序号大于```org.springframework.boot.context.config.ConfigFileApplicationListener```的序号，让在其之后加载配置信息，保证新修改的配置能够不被覆盖。
