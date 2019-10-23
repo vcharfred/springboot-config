@@ -31,7 +31,7 @@ springboot-acm-config-starter 是一个借鉴阿里云官方提供的sdk包进�
         secret-key: your secret-key
         # 配置dataId必须添加文件后缀，支持properties或yml文件
         application-data-id: your start properties file data id
-        # 配置dataId必须添加文件后缀，支持properties或yml文件；多个使用英文逗号分隔
+        # 对于properties或yml文件dataId必须添加文件后缀；多个使用英文逗号分隔
         data-id-list: dev.system.yml,dev.properties
         
 之后启动springboot项目即可

@@ -283,12 +283,23 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
 
     private Map<String, Object> loadConfig(String dataId, String group, int timeOut){
         try{
+
             if(null!=dataId && dataId.trim().length()>0){
                 DiamondProxy diamondProxy = new DiamondProxyImpl();
-                Properties properties = diamondProxy.getProperties(dataId, group, timeOut);
-                Map<String, Object> source = toMap(properties);
-                if(!source.isEmpty()){
-                    return source;
+                if(dataId.endsWith(".yaml") || dataId.endsWith(".yml") || dataId.endsWith(".properties")){
+                    Properties properties = diamondProxy.getProperties(dataId, group, timeOut);
+                    Map<String, Object> source = toMap(properties);
+                    if(!source.isEmpty()){
+                        return source;
+                    }
+                }else {
+                    //not yaml file or properties file
+                    String config = diamondProxy.getConfig(dataId, group, timeOut);
+                    if(null!=config && config.length()>0){
+                        Map<String, Object> source = new HashMap<>();
+                        source.put(dataId, config);
+                        return source;
+                    }
                 }
             }
         }catch (Exception e){
