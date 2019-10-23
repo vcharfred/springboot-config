@@ -267,26 +267,43 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         if(group==null){
             group = "DEFAULT_GROUP";
         }
+
         int timeOut = acmProperties.getTimeOut();
-        if(null!=acmProperties.getDataIdList() && acmProperties.getDataIdList().size()>0){
 
-            List<String> dataIdList = acmProperties.getDataIdList();
+        Map<String, Object> applicationMap = null;
+        if(null!=acmProperties.getApplicationDataId() && acmProperties.getApplicationDataId().length()>0){
+            applicationMap = loadConfig(acmProperties.getApplicationDataId(), group, timeOut);
+        }
+
+        List<String> dataIdList = acmProperties.getDataIdList();
+
+        if(null!=applicationMap && !applicationMap.isEmpty() && null!=applicationMap.get("alibaba.acm.data-id-list")){
+            String dataIdListStr = applicationMap.get("alibaba.acm.data-id-list").toString();
+            try{
+                if(null!=dataIdListStr && dataIdListStr.length()>0){
+                    dataIdList = Arrays.asList(dataIdListStr.split(","));
+                }
+            }catch (Exception e){
+                logger.error("load acm config data-id-list error", e);
+            }
+        }
+
+        if(null!=dataIdList && dataIdList.size()>0){
             dataIdList.sort(Comparator.naturalOrder());
-
             for(String dataId:dataIdList){
-                Map<String, Object> map = loadConfig(dataId, group, timeOut);
-                if(null!=map && !map.isEmpty()){
-                    source.putAll(map);
+                if(null!=dataId && dataId.length()>0){
+                    Map<String, Object> map = loadConfig(dataId, group, timeOut);
+                    if(null!=map && !map.isEmpty()){
+                        source.putAll(map);
+                    }
                 }
             }
         }
 
-        if(null!=acmProperties.getApplicationDataId() && acmProperties.getApplicationDataId().length()>0){
-            Map<String, Object> map = loadConfig(acmProperties.getApplicationDataId(), group, timeOut);
-            if(null!=map && !map.isEmpty()){
-                source.putAll(map);
-            }
+        if(null!=applicationMap && !applicationMap.isEmpty()){
+            source.putAll(applicationMap);
         }
+
         return source;
     }
 
