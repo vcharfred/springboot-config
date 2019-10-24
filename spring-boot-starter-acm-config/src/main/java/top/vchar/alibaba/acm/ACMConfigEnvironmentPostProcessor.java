@@ -154,6 +154,20 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
      */
     private void loadAcmConfigFromSystem(AcmProperties acmProperties){
         // 参数先读取jvm参数
+        String applicationDataId = System.getProperty("alibaba.acm.application-data-id");
+        if(!StringUtils.isEmpty(applicationDataId)){
+            acmProperties.setApplicationDataId(applicationDataId);
+        }
+
+        String dataIds = System.getProperty("alibaba.acm.data-id-list");
+        if(!StringUtils.isEmpty(dataIds)){
+            acmProperties.setDataIdList(Arrays.asList(dataIds.split(",")));
+        }
+        String group = System.getProperty("alibaba.acm.group");
+        if(!StringUtils.isEmpty(group)){
+            acmProperties.setGroup(group);
+        }
+
         String endpoint = System.getProperty("address.server.domain");
         if (!StringUtils.isEmpty(endpoint)) {
             acmProperties.setEndpoint(endpoint);

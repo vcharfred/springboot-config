@@ -4,7 +4,6 @@ import com.alibaba.edas.acm.ConfigService;
 import com.alibaba.edas.acm.exception.ConfigException;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.StringReader;

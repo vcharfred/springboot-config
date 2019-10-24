@@ -16,7 +16,7 @@ springboot-acm-config-starter 是一个借鉴阿里云官方提供的sdk包进�
         
         <dependency>
               <groupId>top.vchar.alibaba.acm</groupId>
-              <artifactId>springboot-acm-config-starter</artifactId>
+              <artifactId>spring-boot-starter-acm-config</artifactId>
               <version>1.0-SNAPSHOT</version>
           </dependency>
 
@@ -39,11 +39,14 @@ springboot-acm-config-starter 是一个借鉴阿里云官方提供的sdk包进�
 
 也可以通过Java启动参数来设置
 
-    -Daddress.server.domain   设置 endpoint
-    -Dtenant.id               设置 namespace
-    -Dram.role.name           设置 授权用户名
-    -Dalibaba.acm.access-key  设置 access-key
-    -Dalibaba.acm.secret-key  设置 secret-key
+    -Dalibaba.acm.application-data-id   设置 application-data-id
+    -Dalibaba.acm.data-id-list          设置 data-id-list
+    -Dalibaba.acm.group                 设置 group
+    -Daddress.server.domain             设置 endpoint
+    -Dtenant.id                         设置 namespace
+    -Dram.role.name                     设置 授权用户名
+    -Dalibaba.acm.access-key            设置 access-key
+    -Dalibaba.acm.secret-key            设置 secret-key
 
 > role.name优先级高于access-key和secret-key
     
