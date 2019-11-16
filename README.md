@@ -15,7 +15,7 @@ spring-boot-starter-acm-config 是一个借鉴阿里云官方提供的sdk包进�
 如：将数据库、redis等配置放在ACM配置中心中。
 
 ### 如何使用
-在springboot项目中引入spring-boot-starter-acm-config项目
+在springboot项目中引入spring-boot-starter-acm-config项目（记得本地自己编译哦）
         
         <dependency>
             <groupId>top.vchar.config</groupId>
