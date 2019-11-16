@@ -33,6 +33,8 @@ springboot-acm-config-starter 是一个借鉴阿里云官方提供的sdk包进�
         application-data-id: your start properties file data id
         # 对于properties或yml文件dataId必须添加文件后缀；多个使用英文逗号分隔
         data-id-list: dev.system.yml,dev.properties
+        # 默认环境变量配置优先，若设置为false则会将环境变量中的值替换为配置文件中的值
+        vm-priority: true
         
 之后启动springboot项目即可
 

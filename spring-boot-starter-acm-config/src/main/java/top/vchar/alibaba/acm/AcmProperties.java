@@ -68,6 +68,11 @@ public class AcmProperties {
      */
     private String regionId;
 
+    /**
+     * system config priority
+     */
+    private boolean vmPriority = true;
+
     public String getGroup() {
         return group;
     }
@@ -156,6 +161,14 @@ public class AcmProperties {
         this.regionId = regionId;
     }
 
+    public boolean getVmPriority() {
+        return vmPriority;
+    }
+
+    public void setVmPriority(boolean vmPriority) {
+        this.vmPriority = vmPriority;
+    }
+
     @Override
     public String toString() {
         return "AcmProperties{" +
@@ -170,6 +183,7 @@ public class AcmProperties {
                 ", ramRoleName='" + ramRoleName + '\'' +
                 ", openKMSFilter=" + openKMSFilter +
                 ", regionId='" + regionId + '\'' +
+                ", vmPriority=" + vmPriority +
                 '}';
     }
 }

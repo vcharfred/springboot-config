@@ -28,7 +28,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>top.vchar.alibaba.acm</groupId>
+            <groupId>top.vchar.config</groupId>
             <artifactId>spring-boot-starter-acm-config</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

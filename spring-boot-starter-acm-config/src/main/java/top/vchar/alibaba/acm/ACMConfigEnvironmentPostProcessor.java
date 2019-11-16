@@ -3,6 +3,7 @@ package top.vchar.alibaba.acm;
 import com.alibaba.edas.acm.ConfigService;
 import com.taobao.diamond.client.impl.TenantUtil;
 import com.taobao.diamond.identify.CredentialService;
+import com.taobao.diamond.identify.Credentials;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -48,7 +49,7 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         if(propertySources.contains(ACM_PROPERTY_SOURCE_NAME)){
             return;
         }
-        // 获取所有springboot的application配置
+        // get all springboot in application config
         List<PropertySource<?>> applicationConfig = propertySources.stream().filter(p -> p instanceof OriginTrackedMapPropertySource && p.getName().contains("applicationConfig")).collect(Collectors.toList());
         if(applicationConfig.size()==0){
             logger.warn("do not find applicationConfig PropertySource");
@@ -74,6 +75,7 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
 
         //load acm config from vm, this is not necessary, acm sdk jar will read properties from vm first
         loadAcmConfigFromSystem(acmProperties);
+
 
         Map<String, Object> newSource = toMap(acmProperties);
         //set config to environment
@@ -150,31 +152,47 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
 
     /**
      * load acm config from jvm
-     * @param acmProperties acm config
+     * @param acmProperties acm config in applicationConfigurationProperties
      */
     private void loadAcmConfigFromSystem(AcmProperties acmProperties){
-        // 参数先读取jvm参数
-        String applicationDataId = System.getProperty("alibaba.acm.application-data-id");
-        if(!StringUtils.isEmpty(applicationDataId)){
-            acmProperties.setApplicationDataId(applicationDataId);
+
+        if(StringUtils.isEmpty(acmProperties.getApplicationDataId()) || acmProperties.getVmPriority()){
+            String applicationDataId = System.getProperty("alibaba.acm.application-data-id");
+            if(!StringUtils.isEmpty(applicationDataId)){
+                acmProperties.setApplicationDataId(applicationDataId);
+            }
         }
 
-        String dataIds = System.getProperty("alibaba.acm.data-id-list");
-        if(!StringUtils.isEmpty(dataIds)){
-            acmProperties.setDataIdList(Arrays.asList(dataIds.split(",")));
-        }
-        String group = System.getProperty("alibaba.acm.group");
-        if(!StringUtils.isEmpty(group)){
-            acmProperties.setGroup(group);
+        if(acmProperties.getDataIdList()==null || acmProperties.getDataIdList().size()<1 || acmProperties.getVmPriority()){
+            String dataIds = System.getProperty("alibaba.acm.data-id-list");
+            if(!StringUtils.isEmpty(dataIds)){
+                acmProperties.setDataIdList(Arrays.asList(dataIds.split(",")));
+            }
         }
 
-        String endpoint = System.getProperty("address.server.domain");
-        if (!StringUtils.isEmpty(endpoint)) {
-            acmProperties.setEndpoint(endpoint);
+        if(StringUtils.isEmpty(acmProperties.getGroup()) || acmProperties.getVmPriority()){
+            String group = System.getProperty("alibaba.acm.group");
+            if(!StringUtils.isEmpty(group)){
+                acmProperties.setGroup(group);
+            }
         }
-        String namespace = TenantUtil.getUserTenant();
-        if (!StringUtils.isEmpty(namespace)) {
-            acmProperties.setNamespace(namespace);
+
+        if(StringUtils.isEmpty(acmProperties.getEndpoint())  || acmProperties.getVmPriority()){
+            String endpoint = System.getProperty("address.server.domain");
+            if (!StringUtils.isEmpty(endpoint)) {
+                acmProperties.setEndpoint(endpoint);
+            }
+        }else {
+            System.setProperty("address.server.domain", acmProperties.getEndpoint());
+        }
+
+        if(StringUtils.isEmpty(acmProperties.getNamespace()) || acmProperties.getVmPriority()){
+            String namespace = TenantUtil.getUserTenant();
+            if (!StringUtils.isEmpty(namespace)) {
+                acmProperties.setNamespace(namespace);
+            }
+        }else {
+            TenantUtil.setUserTenant(acmProperties.getNamespace());
         }
 
         String ramRoleName = System.getProperty("ram.role.name");
@@ -182,14 +200,38 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
             acmProperties.setRamRoleName(ramRoleName);
         }
 
-        String accessKey = CredentialService.getInstance().getCredential().getAccessKey();
-        if (!StringUtils.isEmpty(accessKey)) {
-            acmProperties.setAccessKey(accessKey);
+        String accessKey = acmProperties.getAccessKey();
+        String secretKey = acmProperties.getSecretKey();
+        int needUpdateAK = 0;
+        if(StringUtils.isEmpty(accessKey)  || acmProperties.getVmPriority()){
+            String accessKeyVm = System.getProperty("alibaba.acm.access-key");
+            if (StringUtils.isEmpty(accessKeyVm)) {
+                String accessKeyAuto = CredentialService.getInstance().getCredential().getAccessKey();
+                if(!StringUtils.isEmpty(accessKeyAuto)){
+                    accessKey = accessKeyAuto;
+                    needUpdateAK++;
+                }
+            }else{
+                accessKey = accessKeyVm;
+            }
         }
+        if(StringUtils.isEmpty(secretKey)  || acmProperties.getVmPriority()){
+            String secretKeyVm = System.getProperty("alibaba.acm.secret-key");
+            if (StringUtils.isEmpty(secretKeyVm)) {
+                String secretKeyAuto = CredentialService.getInstance().getCredential().getSecretKey();
+                if(!StringUtils.isEmpty(secretKeyAuto)){
+                    secretKey = secretKeyAuto;
+                    needUpdateAK++;
+                }
+            }else {
+                secretKey = secretKeyVm;
+            }
+        }
+        acmProperties.setAccessKey(accessKey);
+        acmProperties.setSecretKey(secretKey);
 
-        String secretKey = CredentialService.getInstance().getCredential().getSecretKey();
-        if (!StringUtils.isEmpty(secretKey)) {
-            acmProperties.setSecretKey(secretKey);
+        if(needUpdateAK<2 && !StringUtils.isEmpty(accessKey) && !StringUtils.isEmpty(secretKey)){
+            CredentialService.getInstance().setCredential(new Credentials(accessKey, secretKey));
         }
     }
 
@@ -265,6 +307,7 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
      * @return return config
      */
     private Map<String, Object> loadConfig(AcmProperties acmProperties) {
+        logger.info("start get remotely acm config");
         Map<String, Object> source = new HashMap<>();
         String group = acmProperties.getGroup();
         if(group==null){
@@ -276,6 +319,9 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
         Map<String, Object> applicationMap = null;
         if(null!=acmProperties.getApplicationDataId() && acmProperties.getApplicationDataId().length()>0){
             applicationMap = loadConfig(acmProperties.getApplicationDataId(), group, timeOut);
+            if(null==applicationMap){
+                logger.error("load acm config '"+acmProperties.getApplicationDataId()+"' fail");
+            }
         }
 
         List<String> dataIdList = acmProperties.getDataIdList();
@@ -293,6 +339,7 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
 
         if(null!=dataIdList && dataIdList.size()>0){
             dataIdList.sort(Comparator.naturalOrder());
+            logger.info("will load acm config data-id-list: "+String.join(",", dataIdList));
             for(String dataId:dataIdList){
                 if(null!=dataId && dataId.length()>0){
                     Map<String, Object> map = loadConfig(dataId, group, timeOut);
@@ -301,12 +348,14 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
                     }
                 }
             }
+        }else {
+            logger.info("no data-id-list config need load");
         }
 
         if(null!=applicationMap && !applicationMap.isEmpty()){
             source.putAll(applicationMap);
         }
-
+        logger.info("get remotely acm config complete");
         return source;
     }
 

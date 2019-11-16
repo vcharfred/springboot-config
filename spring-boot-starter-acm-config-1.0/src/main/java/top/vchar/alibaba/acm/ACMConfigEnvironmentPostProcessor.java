@@ -3,6 +3,7 @@ package top.vchar.alibaba.acm;
 import com.alibaba.edas.acm.ConfigService;
 import com.taobao.diamond.client.impl.TenantUtil;
 import com.taobao.diamond.identify.CredentialService;
+import com.taobao.diamond.identify.Credentials;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.boot.env.EnumerableCompositePropertySource;
@@ -149,32 +150,48 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
     }
 
     /**
-     * load acm config from vm
-     * @param acmProperties  acm config in applicationConfigurationProperties
+     * load acm config from jvm
+     * @param acmProperties acm config in applicationConfigurationProperties
      */
     private void loadAcmConfigFroVm(AcmProperties acmProperties){
-        // 参数先读取jvm参数
-        String applicationDataId = System.getProperty("alibaba.acm.application-data-id");
-        if(!StringUtils.isEmpty(applicationDataId)){
-            acmProperties.setApplicationDataId(applicationDataId);
+
+        if(StringUtils.isEmpty(acmProperties.getApplicationDataId()) || acmProperties.getVmPriority()){
+            String applicationDataId = System.getProperty("alibaba.acm.application-data-id");
+            if(!StringUtils.isEmpty(applicationDataId)){
+                acmProperties.setApplicationDataId(applicationDataId);
+            }
         }
 
-        String dataIds = System.getProperty("alibaba.acm.data-id-list");
-        if(!StringUtils.isEmpty(dataIds)){
-            acmProperties.setDataIdList(Arrays.asList(dataIds.split(",")));
-        }
-        String group = System.getProperty("alibaba.acm.group");
-        if(!StringUtils.isEmpty(group)){
-            acmProperties.setGroup(group);
+        if(acmProperties.getDataIdList()==null || acmProperties.getDataIdList().size()<1 || acmProperties.getVmPriority()){
+            String dataIds = System.getProperty("alibaba.acm.data-id-list");
+            if(!StringUtils.isEmpty(dataIds)){
+                acmProperties.setDataIdList(Arrays.asList(dataIds.split(",")));
+            }
         }
 
-        String endpoint = System.getProperty("address.server.domain");
-        if (!StringUtils.isEmpty(endpoint)) {
-            acmProperties.setEndpoint(endpoint);
+        if(StringUtils.isEmpty(acmProperties.getGroup()) || acmProperties.getVmPriority()){
+            String group = System.getProperty("alibaba.acm.group");
+            if(!StringUtils.isEmpty(group)){
+                acmProperties.setGroup(group);
+            }
         }
-        String namespace = TenantUtil.getUserTenant();
-        if (!StringUtils.isEmpty(namespace)) {
-            acmProperties.setNamespace(namespace);
+
+        if(StringUtils.isEmpty(acmProperties.getEndpoint())  || acmProperties.getVmPriority()){
+            String endpoint = System.getProperty("address.server.domain");
+            if (!StringUtils.isEmpty(endpoint)) {
+                acmProperties.setEndpoint(endpoint);
+            }
+        }else {
+            System.setProperty("address.server.domain", acmProperties.getEndpoint());
+        }
+
+        if(StringUtils.isEmpty(acmProperties.getNamespace()) || acmProperties.getVmPriority()){
+            String namespace = TenantUtil.getUserTenant();
+            if (!StringUtils.isEmpty(namespace)) {
+                acmProperties.setNamespace(namespace);
+            }
+        }else {
+            TenantUtil.setUserTenant(acmProperties.getNamespace());
         }
 
         String ramRoleName = System.getProperty("ram.role.name");
@@ -182,23 +199,39 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
             acmProperties.setRamRoleName(ramRoleName);
         }
 
-        String accessKey = System.getProperty("alibaba.acm.access-key");
-        String secretKey = System.getProperty("alibaba.acm.secret-key");
+        String accessKey = acmProperties.getAccessKey();
+        String secretKey = acmProperties.getSecretKey();
+        int needUpdateAK = 0;
+        if(StringUtils.isEmpty(accessKey)  || acmProperties.getVmPriority()){
+            String accessKeyVm = System.getProperty("alibaba.acm.access-key");
+            if (StringUtils.isEmpty(accessKeyVm)) {
+                String accessKeyAuto = CredentialService.getInstance().getCredential().getAccessKey();
+                if(!StringUtils.isEmpty(accessKeyAuto)){
+                    accessKey = accessKeyAuto;
+                    needUpdateAK++;
+                }
+            }else{
+                accessKey = accessKeyVm;
+            }
+        }
+        if(StringUtils.isEmpty(secretKey)  || acmProperties.getVmPriority()){
+            String secretKeyVm = System.getProperty("alibaba.acm.secret-key");
+            if (StringUtils.isEmpty(secretKeyVm)) {
+                String secretKeyAuto = CredentialService.getInstance().getCredential().getSecretKey();
+                if(!StringUtils.isEmpty(secretKeyAuto)){
+                    secretKey = secretKeyAuto;
+                    needUpdateAK++;
+                }
+            }else {
+                secretKey = secretKeyVm;
+            }
+        }
+        acmProperties.setAccessKey(accessKey);
+        acmProperties.setSecretKey(secretKey);
 
-        if(StringUtils.isEmpty(accessKey)){
-            accessKey = CredentialService.getInstance().getCredential().getAccessKey();
+        if(needUpdateAK<2 && !StringUtils.isEmpty(accessKey) && !StringUtils.isEmpty(secretKey)){
+            CredentialService.getInstance().setCredential(new Credentials(accessKey, secretKey));
         }
-        if (!StringUtils.isEmpty(accessKey)) {
-            acmProperties.setAccessKey(accessKey);
-        }
-
-        if(StringUtils.isEmpty(secretKey)){
-            secretKey = CredentialService.getInstance().getCredential().getSecretKey();
-        }
-        if (!StringUtils.isEmpty(secretKey)) {
-            acmProperties.setSecretKey(secretKey);
-        }
-
     }
 
     /**
