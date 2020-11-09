@@ -270,7 +270,9 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
      * @return return config
      */
     private Map<String, Object> loadConfig(AcmProperties acmProperties) {
-        Map<String, Object> source = new HashMap<>();
+        logger.info("start get remotely acm config");
+
+        Map<String, Object> source = new HashMap<>(2);
         String group = acmProperties.getGroup();
         if(group==null){
             group = "DEFAULT_GROUP";

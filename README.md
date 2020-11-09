@@ -1,12 +1,12 @@
 # Springboot 自定义配置中心
 
-[![build status](https://img.shields.io/badge/build-1.0-green)]()
+[![build status](https://img.shields.io/badge/build-2.0-green)]()
 [![jdk](https://img.shields.io/badge/jdk-1.8-green)]()
-[![spring--boot](https://img.shields.io/badge/spring--boot-1.5.21-green)]()
+[![spring--boot](https://img.shields.io/badge/spring--boot-2.1.9-green)]()
 [![spring--cloud](https://img.shields.io/badge/config--center-acm-green)]()
 
 当前只有SpringCloud有一个使用git仓库做的配置中心组件，但是对于不使用微服务或者是只是使用Springboot时就没法操作了；
-因此可以参考SpringCloud的配置中心实现的原理来实现一个适合Springboot的轻量级配置中心。
+因此可以参考SpringCloud的配置中心实现的原理来实现一个适合Spring boot的轻量级配置中心。
 
 ## 一、通过阿里云的ACM产品做配置中心
 
@@ -24,10 +24,10 @@ spring-boot-starter-acm-config 是一个借鉴阿里云官方提供的sdk包进�
 ### 如何使用
 在springboot项目中引入spring-boot-starter-acm-config项目（记得本地自己编译哦）
         
-         <dependency>
+        <dependency>
             <groupId>top.vchar.alibaba</groupId>
             <artifactId>spring-boot-starter-acm-config</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
 在springboot的application.yml或者application.properties等启动配置文件中配置ACM相关配置
