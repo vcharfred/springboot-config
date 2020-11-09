@@ -1,5 +1,10 @@
 # Springboot 自定义配置中心
 
+[![build status](https://img.shields.io/badge/build-1.0-green)]()
+[![jdk](https://img.shields.io/badge/jdk-1.8-green)]()
+[![spring--boot](https://img.shields.io/badge/spring--boot-1.5.21-green)]()
+[![spring--cloud](https://img.shields.io/badge/config--center-acm-green)]()
+
 当前只有SpringCloud有一个使用git仓库做的配置中心组件，但是对于不使用微服务或者是只是使用Springboot时就没法操作了；
 因此可以参考SpringCloud的配置中心实现的原理来实现一个适合Springboot的轻量级配置中心。
 
