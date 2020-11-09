@@ -27,7 +27,7 @@ public class IndexController {
     @GetMapping("/redis_test")
     public String redisTest() {
         String val = redisTemplate.opsForValue().get("test:demo");
-        redisTemplate.opsForValue().set("test:demo", "this is test", 5);
+        redisTemplate.opsForValue().set("test:demo", "this is test", 10);
         return val;
     }
 

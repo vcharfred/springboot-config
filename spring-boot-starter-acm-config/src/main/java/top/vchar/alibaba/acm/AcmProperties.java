@@ -1,6 +1,7 @@
 package top.vchar.alibaba.acm;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @version 1.0
  * @create_date 2019/10/9 20:08
  */
+@Component
 @ConfigurationProperties(prefix = "alibaba.acm")
 public class AcmProperties {
 
