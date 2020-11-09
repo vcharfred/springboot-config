@@ -12,4 +12,3 @@ alibaba:
     secret-key: secret-key
     application-data-id: top.vchar.demo:config-demo.yml
     data-id-list: demo.yml,dev.properties
-    vm-priority: true
