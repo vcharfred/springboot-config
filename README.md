@@ -71,6 +71,7 @@ spring-boot-starter-acm-config 是一个借鉴阿里云官方提供的sdk包进�
     如：
     -Daddress.server.domain=acm.aliyun.com
 #### b.使用阿里云的EDAS和SEA时的区别
+
 在EDAS或ECS服务器时不需要配置相关账号信息，只需要对对应的服务器授权即可，在程序启动时阿里云会自动注入相关账户信息；只需要配置要加载的配置文件即可；
 SEA目前不支持ACM自动授权，因此若是jar包启动则需要设置启动参数（acm的sdk包默认jvm启动参数优先级最高）；若是war包则需要设置vm-priority为false，并springboot的配置文件中设置账户信息，工具包将会覆盖阿里云自动注入信息；
 
@@ -82,9 +83,3 @@ SEA目前不支持ACM自动授权，因此若是jar包启动则需要设置启�
 
     # Environment Post Processors
     org.springframework.boot.env.EnvironmentPostProcessor=top.vchar.alibaba.acm.ACMConfigEnvironmentPostProcessor
-
-
-## 二、通过git仓库实现
-    TODO
-## 三、读取启动时设置的jvm参数或者是配置文件
-    TODO
