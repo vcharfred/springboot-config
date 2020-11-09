@@ -1,2 +1,0 @@
-# Environment Post Processors
-org.springframework.boot.env.EnvironmentPostProcessor=top.vchar.alibaba.acm.ACMConfigEnvironmentPostProcessor

@@ -242,8 +242,10 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
     private void acmInit(AcmProperties acmProperties){
         try{
             Properties properties = new Properties();
-            properties.put("endpoint", acmProperties.getEndpoint());//地域
-            properties.put("namespace", acmProperties.getNamespace());//命名空间id
+            //地域
+            properties.put("endpoint", acmProperties.getEndpoint());
+            //命名空间id
+            properties.put("namespace", acmProperties.getNamespace());
             // 通过 ECS 实例 RAM 角色访问 ACM
             if(null!=acmProperties.getRamRoleName()){
                 properties.put("ramRoleName", acmProperties.getRamRoleName());
@@ -308,7 +310,8 @@ public class ACMConfigEnvironmentPostProcessor implements EnvironmentPostProcess
      */
     private Map<String, Object> loadConfig(AcmProperties acmProperties) {
         logger.info("start get remotely acm config");
-        Map<String, Object> source = new HashMap<>();
+
+        Map<String, Object> source = new HashMap<>(2);
         String group = acmProperties.getGroup();
         if(group==null){
             group = "DEFAULT_GROUP";
